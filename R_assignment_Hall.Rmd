@@ -105,70 +105,33 @@ ggplot(data = teosinte_genotypes_positions) + geom_bar(mapping = aes(x = Chromos
 Graphs of maize and teosinte are identical
 
 ### Missing data and heterozygosity
-
 Create a new function called `is_heterozygous` that returns:
-  1. TRUE for heterozygous positions
-  2. FALSE for homozygous positions
-  3. NA for missing data
+  1. 'heterozygous' for heterozygous positions
+  2. 'homozygous' for homozygous positions
+  3. 'missing' for missing data
 ```{r}
 #function to check for heterozygosity
-is_heterozygous <- function(genotype){
-  return(ifelse(genotype == 'A/A' | genotype == 'T/T' | genotype == 'G/G' | genotype == 'C/C', FALSE, ifelse(genotype == '?/?', NA, TRUE)))
+zygosity <- function(genotype){
+  return(ifelse(genotype == 'A/A' | genotype == 'T/T' | genotype == 'G/G' | genotype == 'C/C', 'homozygous', ifelse(genotype == '?/?', 'missing', 'heterozygous')))
 }
 ```
 
-Use this function to determine heterozygosity at each site:
+Plot the heterozygosity data for each group in `fang_et_al_genotypes`
 ```{r}
-#Preallocate new objects to store maize heterozygosity data
-maize_heterozygosity <- data.frame(matrix(nrow=nrow(maize_genotypes_positions) , ncol=length(maize_genotypes_positions)))
-maize_heterozygosity[,1:3] <- c(maize_genotypes_positions[,1:3]) #copy position and chromosome data
-names(maize_heterozygosity) <- names(maize_genotypes_positions)
+#make the fang_et_al_genotypes long (tidy the data)
+fang_genotypes_long <- pivot_longer(fang_et_al_genotypes, -1:-3, names_to = 'SNP_ID', values_to = 'genotype')
 
-#check each element for heterozygosity and record it in the new data frame
-maize_heterozygosity[,-1:-3] <- is_heterozygous(maize_genotypes_positions[,-1:-3])
+#determine zygosity of genotypes, and make another column
+fang_genotypes_long <- mutate(fang_genotypes_long, zygosity = zygosity(genotype))
 
-##Preallocate new objects to store maize heterozygosity data
-teosinte_heterozygosity <- data.frame(matrix(nrow=nrow(teosinte_genotypes_positions) , ncol=length(teosinte_genotypes_positions)))
-teosinte_heterozygosity[,1:3] <- teosinte_genotypes_positions[,1:3] #copy position and chromosome data
-names(teosinte_heterozygosity) <- names(teosinte_genotypes_positions)
-
-#check each element for heterozygosity and record it in the new data frame
-teosinte_heterozygosity[,-1:-3] <- is_heterozygous(teosinte_genotypes_positions[,-1:-3])
+#plot the zygosity based on group
+fang_genotypes_long <- fang_genotypes_long %>% mutate(zygosity = fct_relevel(zygosity, 'missing','homozygous','heterozygous'))#change the order so missing is plotted on top
+ggplot(data = fang_genotypes_long) + geom_bar(mapping = aes(x = Group, fill= zygosity), position = 'fill') + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) #plot zygosity based on sample
+#ggplot(data = fang_genotypes_long) + geom_bar(mapping = aes(x = Sample_ID, fill= zygosity), position = 'fill') + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, #hjust=1)) #by sample
 ```
 
-Summarize this heterozygosity data visually:
-```{r}
-#calculate the number of heterozygous, homozygous, and missing elements for each maize SNP (row)
-j <- length(maize_heterozygosity)
-maize_heterozygosity <- maize_heterozygosity %>%  
-  mutate(heterozygous=rowSums(maize_heterozygosity[,4:j], na.rm=TRUE), #count TRUE values (heterozygous)
-         homozygous=rowSums(maize_heterozygosity[,4:j]==FALSE,na.rm=TRUE), #switch TRUE values to homozygous and count
-         missing=rowSums(is.na(maize_heterozygosity[,4:j]),na.rm=TRUE)) #switch TRUE values to missing and count
-
-#calculate the number of heterozygous, homozygous, and missing elements for each teosinte SNP (row)
-k <- length(teosinte_heterozygosity)
-teosinte_heterozygosity <- teosinte_heterozygosity %>%  
-  mutate(heterozygous=rowSums(teosinte_heterozygosity[,4:k], na.rm=TRUE), #count TRUE values (heterozygous)
-         homozygous=rowSums(teosinte_heterozygosity[,4:k]==FALSE,na.rm=TRUE), #switch TRUE values to homozygous and count
-         missing=rowSums(is.na(teosinte_heterozygosity[,4:k]),na.rm=TRUE)) #switch TRUE values to missing and count
-
-#create summary table of maize and teosinte heterozygosity
-hetero_summary <- data.frame(matrix(nrow=6,ncol=3))
-names(hetero_summary) <- c('group','status','proportion') 
-hetero_summary[,'group'] <- c('maize','maize','maize','teosinte','teosinte','teosinte')
-hetero_summary[,'status'] <- c('missing','heterozygous','homozygous')
-hetero_summary[1,'proportion'] <- sum(maize_heterozygosity[,'missing']) / (nrow(maize_heterozygosity)*(j-6)) #missing proportion maize
-hetero_summary[2,'proportion'] <- sum(maize_heterozygosity[,'heterozygous']) / (nrow(maize_heterozygosity)*(j-6)) #heterozygous proportion maize
-hetero_summary[3,'proportion'] <- sum(maize_heterozygosity[,'homozygous']) / (nrow(maize_heterozygosity)*(j-6)) #homozygous proportion maize
-hetero_summary[4,'proportion'] <- sum(teosinte_heterozygosity[,'missing']) / (nrow(teosinte_heterozygosity)*(k-6)) #missing proportion teosinte
-hetero_summary[5,'proportion'] <- sum(teosinte_heterozygosity[,'heterozygous']) / (nrow(teosinte_heterozygosity)*(k-6)) #heterozygous proportion teosinte
-hetero_summary[6,'proportion'] <- sum(teosinte_heterozygosity[,'homozygous']) / (nrow(teosinte_heterozygosity)*(k-6)) #homozygous proportion teosinte
-
-#Plot the data
-ggplot(data = hetero_summary) + geom_col(mapping = aes(x = group, y = proportion, fill= status), position = 'stack') + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-```
 There are a higher proportion of homozygous SNPs and a lower proportion of heterozygous SNPs in maize compared to teosinte.
-Proportion of missing data is about the same.
+
 
 ### My own visualization
 ```{r}
