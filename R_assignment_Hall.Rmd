@@ -92,18 +92,33 @@ for (i in 1:10) {
 Distribution of SNPs on each chromosome
 ```{r}
 #Plot maize SNPs
-ggplot(data = maize_genotypes_positions %>% group_by(Chromosome) %>% filter(Chromosome != 'multiple') %>%  filter(Chromosome != 'unknown') %>% filter(Position != 'multiple') %>% filter(Position != 'unknown')) + geom_point(aes(x = as.integer(Position), y = as.integer(Chromosome)), color = 'blue') + labs(x='Position (bases)', y='Chromosome', title='Maize: SNP distrubution by chromosome') + scale_y_continuous(breaks = c(1:10))
+ggplot(data = maize_genotypes_positions %>% group_by(Chromosome) %>% filter(Chromosome != 'multiple') %>%  filter(Chromosome != 'unknown') %>% filter(Position != 'multiple') %>% filter(Position != 'unknown')) + #remove multiple and unknown positions
+  geom_point(aes(x = as.integer(Position), y = as.integer(Chromosome)), color = 'forestgreen') + 
+  labs(x='Position (bases)', y='Chromosome', title='Maize: SNP distrubution by chromosome') + 
+  scale_y_continuous(breaks = c(1:10))
 
 #Plot teosinte SNPs
-ggplot(data = teosinte_genotypes_positions %>% group_by(Chromosome) %>% filter(Chromosome != 'multiple') %>%  filter(Chromosome != 'unknown') %>% filter(Position != 'multiple') %>% filter(Position != 'unknown')) + geom_point(aes(x = as.integer(Position), y = as.integer(Chromosome)), color = 'red') + labs(x='Position (bases)', y='Chromosome', title='Teosinte: SNP distrubution by chromosome') + scale_y_continuous(breaks = c(1:10))
+ggplot(data = teosinte_genotypes_positions %>% group_by(Chromosome) %>% filter(Chromosome != 'multiple') %>%  filter(Chromosome != 'unknown') %>% filter(Position != 'multiple') %>% filter(Position != 'unknown')) +  #remove multiple and unknown positions
+  geom_point(aes(x = as.integer(Position), y = as.integer(Chromosome)), color = 'firebrick1') + 
+  labs(x='Position (bases)', y='Chromosome', title='Teosinte: SNP distrubution by chromosome') + 
+  scale_y_continuous(breaks = c(1:10))
 ```
 
 Distribution of SNPs across chromosomes
 ```{r}
 #Plot maize SNPs per chromosome
-ggplot(data = maize_genotypes_positions) + geom_bar(mapping = aes(x = Chromosome), fill = 'blue') + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + scale_x_discrete(limits=c('1','2','3','4','5','6','7','8','9','10','multiple','unknown')) + labs(x='Chromosome', y='Number of SNPs', title='Maize: SNPs per Chromosome')
+ggplot(data = maize_genotypes_positions) + 
+  geom_bar(mapping = aes(x = Chromosome), fill = 'forestgreen') + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  scale_x_discrete(limits=c('1','2','3','4','5','6','7','8','9','10','multiple','unknown')) + 
+  labs(x='Chromosome', y='Number of SNPs', title='Maize: SNPs per Chromosome')
+
 #Plot teosinte SNPs per chromosome
-ggplot(data = teosinte_genotypes_positions) + geom_bar(mapping = aes(x = Chromosome), fill = 'red') + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + scale_x_discrete(limits=c('1','2','3','4','5','6','7','8','9','10','multiple','unknown')) + labs(x='Chromosome', y='Number of SNPs', title='Teosinte: SNPs per Chromosome')
+ggplot(data = teosinte_genotypes_positions) + 
+  geom_bar(mapping = aes(x = Chromosome), fill = 'firebrick1') + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  scale_x_discrete(limits=c('1','2','3','4','5','6','7','8','9','10','multiple','unknown')) + 
+  labs(x='Chromosome', y='Number of SNPs', title='Teosinte: SNPs per Chromosome')
 ```
 Graphs of maize and teosinte are identical
 
@@ -131,17 +146,91 @@ fang_genotypes_long <- mutate(fang_genotypes_long, zygosity = zygosity(genotype)
 
 #plot the zygosity based on group
 fang_genotypes_long <- fang_genotypes_long %>% mutate(zygosity = fct_relevel(zygosity, 'missing','homozygous','heterozygous'))#change the order so missing is plotted on top
-ggplot(data = fang_genotypes_long) + geom_bar(mapping = aes(x = Group, fill= zygosity), position = 'fill') + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) 
-
-#plot zygosity based on sample
-#ggplot(data = fang_genotypes_long) + geom_bar(mapping = aes(x = Sample_ID, fill= zygosity), position = 'fill') + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) #by sample
+ggplot(data = fang_genotypes_long) + 
+  geom_bar(mapping = aes(x = Group, fill= zygosity), position = 'fill') + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  labs(x='Group', y='Proportion of SNPs', title='Zygosity across groups') 
 ```
-
-There are a higher proportion of homozygous SNPs and a lower proportion of heterozygous SNPs in maize compared to teosinte.
-
-
-### My own visualization
+For maize:
+  -ZMMIL and ZMMMR groups have very little heterozygosity
+  -ZMMLR group has relatively higher heterozygosity, and lower proportions of missing genotype data
+  
+For Teosinte:
+  - ZMPBA has the highest heterozygosity of any group
+  - ZMPJA also has relatively high proportions of heterozygosity, similar to the maize group ZMMLR
+  - ZMPIL has low levels of heterozygosity, similar to the maize groups ZMMIL and ZMMMR
+  - Proportion of missing data is comparable between the three teosinte groups
+  
+To dissect this further, plot the heterozygosity data by sample within each maize and teosinte group:
 ```{r}
-#still working on this
+#Add a column that numbers samples
+fang_numbers <- mutate(fang_et_al_genotypes, Sample_number = 1:nrow(fang_et_al_genotypes),.before=1)
 
+#make the data long and add zygosity column
+fang_numbers_long <- pivot_longer(fang_numbers, -1:-4, names_to = 'SNP_ID', values_to = 'genotype')
+fang_numbers_long <- mutate(fang_numbers_long, zygosity = zygosity(genotype))
+
+#change the order so missing is plotted on top
+fang_numbers_long <- fang_numbers_long %>% mutate(zygosity = fct_relevel(zygosity, 'missing','homozygous','heterozygous'))
+
+#plot maize zygosity based on samples within groups
+ggplot(data = fang_numbers_long %>% filter(Group=='ZMMIL')) + 
+  geom_histogram(mapping = aes(x = Sample_number, fill = zygosity), binwidth = 1, position = 'fill') + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  labs(x='sample number', y='proportion of SNPs', title='Maize: Zygosity of ZMMIL samples')
+
+ggplot(data = fang_numbers_long %>% filter(Group=='ZMMLR')) + 
+  geom_histogram(mapping = aes(x = Sample_number, fill = zygosity), binwidth = 1, position = 'fill') + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  labs(x='sample number', y='proportion of SNPs', title='Maize: Zygosity of ZMMLR samples')
+
+ggplot(data = fang_numbers_long %>% filter(Group=='ZMMMR')) + 
+  geom_histogram(mapping = aes(x = Sample_number, fill = zygosity), binwidth = 1, position = 'fill') + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  labs(x='sample number', y='proportion of SNPs', title='Maize: Zygosity of ZMMMR samples')
 ```
+Samples vary group to group as noted above, but are relatively consist across samples within a group. small sample size for ZMMMR compared to the other two groups.
+
+```{r}
+#Plot teosinte zygosity based on samples within groups
+ggplot(data = fang_numbers_long %>% filter(Group=='ZMPBA')) + 
+  geom_histogram(mapping = aes(x = Sample_number, fill = zygosity), binwidth = 1, position = 'fill') + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  labs(x='sample number', y='proportion of SNPs', title='Teosinte: Zygosity of ZMPBA samples')
+
+ggplot(data = fang_numbers_long %>% filter(Group=='ZMPIL')) + 
+  geom_histogram(mapping = aes(x = Sample_number, fill = zygosity), binwidth = 1, position = 'fill') + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  labs(x='sample number', y='proportion of SNPs', title='Teosinte: Zygosity of ZMPIL samples')
+
+ggplot(data = fang_numbers_long %>% filter(Group=='ZMPJA')) + 
+  geom_histogram(mapping = aes(x = Sample_number, fill = zygosity), binwidth = 1, position = 'fill') + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  labs(x='sample number', y='proportion of SNPs', title='Teosinte: Zygosity of ZMPJA samples')
+```
+Like in maize, heterozygosity varies group to group but is relatively consistent across samples within a group.
+
+### My own visualization: heterozygosity across chromosomes and species
+```{r}
+#make the data long and add a new column with zygosity data
+maize_genotypes_long <- pivot_longer(maize_genotypes_positions, -1:-3, names_to='Sample', values_to='genotype')
+maize_genotypes_long <- mutate(maize_genotypes_long, zygosity = zygosity(genotype))
+teosinte_genotypes_long <- pivot_longer(teosinte_genotypes_positions, -1:-3, names_to='sample', values_to='genotype')
+teosinte_genotypes_long <- mutate(teosinte_genotypes_long, zygosity = zygosity(genotype))
+
+#Plot the data
+maize_genotypes_long <- maize_genotypes_long %>% mutate(zygosity = fct_relevel(zygosity, 'missing','homozygous','heterozygous'))#change the order so missing is plotted on top
+ggplot(data = maize_genotypes_long) + 
+  geom_bar(mapping = aes(x=Chromosome ,fill=zygosity), position = 'fill') + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  labs(x='Chromosome', y='Proportion of SNPs', title='Maize: Zygosity across chromosomes')
+
+teosinte_genotypes_long <- teosinte_genotypes_long %>% mutate(zygosity = fct_relevel(zygosity, 'missing','homozygous','heterozygous'))#change the order so missing is plotted on top
+ggplot(data = teosinte_genotypes_long) + 
+  geom_bar(mapping = aes(x=Chromosome ,fill=zygosity), position = 'fill') + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  labs(x='Chromosome', y='Proportion of SNPs', title='teosinte: Zygosity across chromosomes')
+```
+heterozygosity does not vary much across chromosomes. Across species, maize has a higher proportion of homozygous SNP postitions compared to teosinte. However, as seen above, heterozygosity varies from group to group within both species.
+
+
