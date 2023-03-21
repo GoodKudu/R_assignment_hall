@@ -3,10 +3,10 @@ David Hall's R assignment files for BCB 546 S23 Iowa State University
 
 ## Repository Contents
 
-### `R_Assignment_hall.rmd`:
+### `R_Assignment_Hall.rmd`:
 The r markdown file containing the data inspection, processing, and visualization code
 
-### `R_Assignment_hall.pdf`:
+### `R_Assignment_Hall.html`:
 Knitted output of 'R_Assignment_hall.rmd'
 
 ### Processed Maize files:
