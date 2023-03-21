@@ -372,32 +372,36 @@ snp_position &lt;-
 <div id="properties-of-fang_et_al_genotypes" class="section level3">
 <h3>Properties of <code>fang_et_al_genotypes</code></h3>
 <p>Code used to inspect <code>fang_et_al_genotypes</code>:</p>
-<pre><code>dim(fang_et_al_genotypes)
+<pre><code>print(object.size(fang_et_al_genotypes), units = &#39;Mb&#39;)
+dim(fang_et_al_genotypes)
 str(fang_et_al_genotypes)
 view(fang_et_al_genotypes)</code></pre>
 <p>from this I learned:</p>
-<ul>
-<li>fang_et_al genotypes has 2782 rows and 986 columns</li>
+<ol style="list-style-type: decimal">
+<li>fang_et_al_genotypes is 22.1 Mb in size</li>
+<li>fang_et_al_genotypes has 2782 rows and 986 columns</li>
 <li>All columns contain values recognized as character type</li>
 <li>The file has the following structure: Sample_ID, JG_OTU, Group, and
 then genoytpe data for each SNP_ID</li>
-</ul>
+</ol>
 </div>
 <div id="properties-of-snp_position" class="section level3">
 <h3>Properties of <code>snp_position</code></h3>
 <p>Code used to inspect <code>snp_position</code>:</p>
-<pre><code>dim(snp_position)
+<pre><code>print(object.size(snp_position), units = &#39;Kb&#39;)
+dim(snp_position)
 str(snp_position)
 view(snp_position)</code></pre>
 <p>from this I learned:</p>
-<ul>
-<li>fang_et_al_genotypes has 915 rows and 15 columns</li>
+<ol style="list-style-type: decimal">
+<li>snp_position is 351 Kb in size</li>
+<li>snp_position has 915 rows and 15 columns</li>
 <li>The columns contain values recognized as character or numeric
 type</li>
 <li>The columns we need (SNP_ID, Chromosome, Position) are all of type
 character, even though one might expect that Chromosome and Position
 would be numeric</li>
-</ul>
+</ol>
 </div>
 </div>
 <div id="data-processing" class="section level2">

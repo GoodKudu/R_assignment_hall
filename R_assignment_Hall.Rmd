@@ -28,20 +28,23 @@ snp_position <-
 
 Code used to inspect `fang_et_al_genotypes`:
 ```
+print(object.size(fang_et_al_genotypes), units = 'Mb')
 dim(fang_et_al_genotypes)
 str(fang_et_al_genotypes)
 view(fang_et_al_genotypes)
 ```
 from this I learned:
 
-- fang_et_al genotypes has 2782 rows and 986 columns
-- All columns contain values recognized as character type
-- The file has the following structure: Sample_ID, JG_OTU, Group, and then genoytpe data for each SNP_ID
+1. fang_et_al_genotypes is 22.1 Mb in size
+2. fang_et_al_genotypes has 2782 rows and 986 columns
+3. All columns contain values recognized as character type
+4. The file has the following structure: Sample_ID, JG_OTU, Group, and then genoytpe data for each SNP_ID
 
 ### Properties of `snp_position`
 
 Code used to inspect `snp_position`:
 ```
+print(object.size(snp_position), units = 'Kb')
 dim(snp_position)
 str(snp_position)
 view(snp_position)
@@ -49,9 +52,10 @@ view(snp_position)
 
 from this I learned:
 
-- fang_et_al_genotypes has 915 rows and 15 columns
-- The columns contain values recognized as character or numeric type
-- The columns we need (SNP_ID, Chromosome, Position) are all of type character, even though one might expect that Chromosome and Position would be numeric 
+1. snp_position is 351 Kb in size
+2. snp_position has 915 rows and 15 columns
+3. The columns contain values recognized as character or numeric type
+4. The columns we need (SNP_ID, Chromosome, Position) are all of type character, even though one might expect that Chromosome and Position would be numeric 
 
 
 ## Data processing
