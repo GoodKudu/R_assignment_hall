@@ -33,6 +33,7 @@ dim(fang_et_al_genotypes)
 str(fang_et_al_genotypes)
 view(fang_et_al_genotypes)
 ```
+
 from this I learned:
 
 1. fang_et_al_genotypes is 22.1 Mb in size
@@ -280,20 +281,21 @@ maize_genotypes_long <- mutate(maize_genotypes_long, zygosity = zygosity(genotyp
 teosinte_genotypes_long <- pivot_longer(teosinte_genotypes_positions, -1:-3, names_to='sample', values_to='genotype')
 teosinte_genotypes_long <- mutate(teosinte_genotypes_long, zygosity = zygosity(genotype))
 
-#Plot the data
-maize_genotypes_long <- maize_genotypes_long %>% mutate(zygosity = fct_relevel(zygosity, 'missing','homozygous','heterozygous'))#'missing' is plotted on top
+#Plot Maize 
+maize_genotypes_long <- maize_genotypes_long %>% mutate(zygosity = fct_relevel(zygosity, 'missing','homozygous','heterozygous'))#Plot 'missing' on top
 ggplot(data=maize_genotypes_long) + 
   geom_bar(mapping=aes(x=Chromosome ,fill=zygosity), position ='fill') + 
   theme(axis.text.x=element_text(angle=90, vjust=0.5, hjust=1)) + 
   labs(x='Chromosome', y='Proportion of SNPs', title='Maize: Zygosity across chromosomes')
 
-teosinte_genotypes_long <- teosinte_genotypes_long %>% mutate(zygosity = fct_relevel(zygosity, 'missing','homozygous','heterozygous'))#'missing' is plotted on top
+#Plot Teosinte
+teosinte_genotypes_long <- teosinte_genotypes_long %>% mutate(zygosity = fct_relevel(zygosity, 'missing','homozygous','heterozygous'))#Plot 'missing' on top
 ggplot(data=teosinte_genotypes_long) + 
   geom_bar(mapping=aes(x=Chromosome ,fill=zygosity), position='fill') + 
   theme(axis.text.x=element_text(angle=90, vjust=0.5, hjust=1)) + 
   labs(x='Chromosome', y='Proportion of SNPs', title='Teosinte: Zygosity across chromosomes')
 ```
 
-heterozygosity does not vary much across chromosomes. Across species, maize has a higher proportion of homozygous SNP postitions compared to teosinte. However, as seen above, heterozygosity varies from group to group within both species.
+heterozygosity does not vary much across chromosomes. Across species, maize has a higher proportion of homozygous SNP postitions compared to teosinte. However, as seen above, heterozygosity varies quite significantly from group to group within both species.
 
 
